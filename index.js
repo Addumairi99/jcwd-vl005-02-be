@@ -10,13 +10,14 @@ const server = http.createServer(app);
 require("dotenv").config();
 
 const port = process.env.PORT || 2000;
+const CLIENT_PORT = process.env.CLIENT_PORT;
 const routers = require("./src/routes");
 
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    exposedHeaders: ["UID", "Auth-Token","Auth-Token-Admin", "Authorization"],
+    origin: CLIENT_PORT,
+    exposedHeaders: ["UID", "Auth-Token", "Auth-Token-Admin", "Authorization"],
   })
 );
 app.use(express.static("public"));
@@ -56,7 +57,7 @@ app.use("/user/address", routers.addressRouter);
 // Socket.io
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: CLIENT_PORT,
     methods: ["GET", "POST"],
   },
 });
@@ -75,7 +76,7 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(2000, () => {
+server.listen(port, () => {
   console.log("Socket.io server is running");
 });
 

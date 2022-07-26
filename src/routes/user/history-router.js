@@ -4,7 +4,6 @@ const auth = require("../../helpers/authorization-token");
 
 const { userHistoryController } = require("../../controllers");
 
-router.get("/", auth, userHistoryController.readAllInvoice);
 router.get("/notifications", auth, userHistoryController.readAllNotifications);
 router.patch(
   "/open-notification",
@@ -21,5 +20,6 @@ router.get(
   auth,
   userHistoryController.generateInvoice
 );
+router.get("/:purchaseState", auth, userHistoryController.readAllInvoice);
 
 module.exports = router;

@@ -29,19 +29,36 @@ const compile = async function (templateName, data) {
 
 module.exports.readAllInvoice = async (req, res) => {
   let userId = req.user.id;
+  let purchaseState = req.params.purchaseState;
+  console.log(purchaseState);
 
   try {
-    const GET_INVOICE_HEADERS = `
-    SELECT *, date_format(date, '%M %e, %Y') as date FROM invoice_headers h 
-        WHERE h.user_id = ${database.escape(userId)} ;`;
+    let GET_INVOICE_HEADERS;
 
+    if (purchaseState == "all") {
+      GET_INVOICE_HEADERS = `
+    SELECT *, date_format(date, '%M %e, %Y') as date FROM invoice_headers
+        WHERE user_id = ${database.escape(userId)} ;`;
+    } else if (purchaseState == "finished") {
+      GET_INVOICE_HEADERS = `
+          SELECT *, date_format(date, '%M %e, %Y') as date FROM invoice_headers 
+              WHERE user_id = ${database.escape(
+                userId
+              )} AND status='Approved' OR status = 'Rejected' ;`;
+    } else {
+      GET_INVOICE_HEADERS = `
+        SELECT *, date_format(date, '%M %e, %Y') as date FROM invoice_headers 
+            WHERE user_id = ${database.escape(
+              userId
+            )} AND status!='Approved' AND status!='Rejected';`;
+    }
     const [INVOICE_HEADERS] = await database.execute(GET_INVOICE_HEADERS);
 
     // create response
     const response = new createResponse(
       httpStatus.OK,
-      "Address data fetched",
-      "Address data fetched successfully!",
+      "Invoice data fetched",
+      "Invoice data fetched successfully!",
       INVOICE_HEADERS,
       INVOICE_HEADERS.length
     );
@@ -64,6 +81,8 @@ module.exports.readAllInvoice = async (req, res) => {
 
 module.exports.readAllNotifications = async (req, res) => {
   let userId = req.user.id;
+  console.log("jalan");
+  console.log("USER ID", userId);
 
   try {
     const GET_NOTIFICATIONS = `

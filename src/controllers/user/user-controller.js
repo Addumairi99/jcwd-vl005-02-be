@@ -9,6 +9,9 @@ const {
 } = require("../../helpers/validation-schema");
 const { createToken } = require("../../helpers/createToken");
 const transporter = require("../../helpers/nodemailer");
+const createError = require("../../helpers/createError");
+const createResponse = require("../../helpers/createResponse");
+const httpStatus = require("../../helpers/httpStatusCode");
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
 // LOGIN
@@ -343,5 +346,41 @@ module.exports.resendemail = async (req, res) => {
   } catch (error) {
     console.log("error:", error);
     return res.status(500).send(error);
+  }
+};
+
+module.exports.readUserById = async (req, res) => {
+  let userId = req.user.id;
+
+  try {
+    const GET_USER_BY_ID = `
+    SELECT *, date_format(created_at, '%M %e, %Y') as created_at
+    FROM users
+    WHERE id = ?; 
+      `;
+    const [USER] = await db.execute(GET_USER_BY_ID, [userId]);
+
+    // create response
+    const response = new createResponse(
+      httpStatus.OK,
+      "User data fetched",
+      "User data fetched successfully!",
+      USER[0],
+      ""
+    );
+
+    res.status(response.status).send(response);
+  } catch (err) {
+    console.log("error : ", err);
+    const isTrusted = err instanceof createError;
+    if (!isTrusted) {
+      err = new createError(
+        httpStatus.Internal_Server_Error,
+        "SQL Script Error",
+        err.sqlMessage
+      );
+      console.log(err);
+    }
+    res.status(err.status).send(err);
   }
 };
