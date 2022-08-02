@@ -166,8 +166,8 @@ module.exports.updateAddressById = async (req, res) => {
 
     const response = new createResponse(
       httpStatus.OK,
-      "Update product success",
-      "Product update saved successfully!",
+      "Update address success",
+      "Address update saved successfully!",
       "",
       ""
     );

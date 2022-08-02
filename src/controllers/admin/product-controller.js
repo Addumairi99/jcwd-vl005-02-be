@@ -338,6 +338,7 @@ module.exports.createProduct = (req, res) => {
 
       let data = JSON.parse(req.body.data);
       let { name, description, category, stock, volume, unit, price } = data;
+      let stockInUnit = stock * volume;
 
       // Gunakan Joi untuk validasi data dari body
       const { error } = addProductSchema.validate(data);
@@ -349,13 +350,15 @@ module.exports.createProduct = (req, res) => {
         );
       }
 
-      const CREATE_PRODUCT = `INSERT INTO products (name, description, category, stock, volume, unit, price) VALUES( ${database.escape(
+      const CREATE_PRODUCT = `INSERT INTO products (name, description, category, stock, volume, unit, price, stock_in_unit) VALUES( ${database.escape(
         name
       )}, ${database.escape(description)}, ${database.escape(
         category
       )}, ${database.escape(stock)} , ${database.escape(
         volume
-      )}, ${database.escape(unit)} , ${database.escape(price)});`;
+      )}, ${database.escape(unit)} , ${database.escape(
+        price
+      )}, ${database.escape(stockInUnit)});`;
       const [PRODUCT] = await database.execute(CREATE_PRODUCT);
       let productId = PRODUCT.insertId;
       newProduct = PRODUCT;
