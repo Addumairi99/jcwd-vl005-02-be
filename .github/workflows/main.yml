@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - development
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,6 +17,15 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Deploy to Linode
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "."
+          target: "/var/www/html/jcwdvl00502api.purwadhikabootcamp.com"
       - name: Run App
         uses: appleboy/ssh-action@master
         with:
@@ -26,7 +34,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /root/jcwdvl005/group2/jcwd-vl005-02-be
-            git pull origin main
-            git status
+            cd /var/www/html/jcwdvl00502api.purwadhikabootcamp.com
+            git pull origin development
             npm install
+            pm2 restart group2api
